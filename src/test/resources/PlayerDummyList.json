@@ -1,0 +1,42 @@
+[
+  {
+    "playerId": 1,
+    "totalWinnings": 3700
+  },
+  {
+    "playerId": 2,
+    "totalWinnings": 3400
+  },
+  {
+    "playerId": 3,
+    "totalWinnings": 4200
+  },
+  {
+    "playerId": 4,
+    "totalWinnings": 5000
+  },
+  {
+    "playerId": 5,
+    "totalWinnings": 3800
+  },
+  {
+    "playerId": 6,
+    "totalWinnings": 3600
+  },
+  {
+    "playerId": 7,
+    "totalWinnings": 4500
+  },
+  {
+    "playerId": 8,
+    "totalWinnings": 3500
+  },
+  {
+    "playerId": 9,
+    "totalWinnings": 4000
+  },
+  {
+    "playerId": 10,
+    "totalWinnings": 4100
+  }
+]
