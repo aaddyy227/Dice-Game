@@ -1,8 +1,8 @@
 package com.dicegame.service
 
 import com.dicegame.dto.PlayerRegisterRequest
+import com.dicegame.exception.UsernameAlreadyExistsException
 import com.dicegame.model.Player
-import com.dicegame.model.Wallet
 import com.dicegame.repository.PlayerRepository
 import jakarta.transaction.Transactional
 import org.springframework.http.ResponseEntity
@@ -14,10 +14,10 @@ class PlayerService(
 ) {
 
     @Transactional
-    fun register(player: PlayerRegisterRequest): Player {
+    fun register(player: PlayerRegisterRequest): ResponseEntity<Player> {
 
         playerRepository.findByUsername(player.username)?.let {
-            throw IllegalArgumentException("Username already exists: ${player.username}")
+            throw UsernameAlreadyExistsException("Username already exists: ${player.username}")
         }
 
         val savedPlayer = Player(
@@ -28,7 +28,7 @@ class PlayerService(
         )
 
         playerRepository.save(savedPlayer)
-        return savedPlayer
+        return ResponseEntity.ok(savedPlayer)
     }
 
 }

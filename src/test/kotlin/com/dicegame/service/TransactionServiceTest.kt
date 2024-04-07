@@ -1,7 +1,7 @@
 package com.dicegame.service
 
-import com.dicegame.repository.TransactionRepository
 import com.dicegame.model.Transaction
+import com.dicegame.repository.TransactionRepository
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -11,6 +11,7 @@ import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.verify
 import java.time.LocalDateTime
+
 @ExtendWith(MockitoExtension::class)
 class TransactionServiceTest {
 
@@ -36,6 +37,10 @@ class TransactionServiceTest {
         Assertions.assertEquals(amount, capturedTransaction.amount)
         Assertions.assertEquals(type, capturedTransaction.transactionType)
         Assertions.assertNotNull(capturedTransaction.transactionTime)
-        Assertions.assertTrue(capturedTransaction.transactionTime.isBefore(LocalDateTime.now().plusMinutes(1)) && capturedTransaction.transactionTime.isAfter(LocalDateTime.now().minusMinutes(1)))
+        Assertions.assertTrue(
+            capturedTransaction.transactionTime.isBefore(
+                LocalDateTime.now().plusMinutes(1)
+            ) && capturedTransaction.transactionTime.isAfter(LocalDateTime.now().minusMinutes(1))
+        )
     }
 }

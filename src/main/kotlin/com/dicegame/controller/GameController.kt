@@ -16,7 +16,6 @@ class GameController(val gameService: GameService) {
 
     @PostMapping("/placebet")
     fun placeBet(@Validated @RequestBody betRequest: BetRequest): ResponseEntity<BetResult> {
-        val betResult = gameService.placeBet(betRequest)
-        return ResponseEntity.ok(betResult)
+        return gameService.placeBet(betRequest)
     }
 }

@@ -13,7 +13,7 @@ class LeaderboardService(
     private val transactionRepository: TransactionRepository,
     private val playerRepository: PlayerRepository
 ) {
-    @Transactional(readOnly=true)
+    @Transactional(readOnly = true)
     fun getLeaderboard(): List<LeaderboardView> {
         val topFive = PageRequest.of(0, 5)
 

@@ -11,11 +11,9 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.mockito.Mock
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
-import org.mockito.kotlin.whenever
 import org.springframework.data.domain.PageRequest
 
 internal class LeaderboardServiceTest {
@@ -66,6 +64,7 @@ internal class LeaderboardServiceTest {
             "The leaderboard entries should match the expected results"
         )
     }
+
     @Test
     fun `getLeaderboard should retrieve top five leaderboard entries`() {
         val playerWinningsList = listOf(
@@ -105,6 +104,7 @@ internal class LeaderboardServiceTest {
             "The leaderboard entries should match the expected results"
         )
     }
+
     @Test
     fun `getLeaderboard throws NoBetsPlacedException when there are no winnings`() {
         // Arrange

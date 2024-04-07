@@ -2,14 +2,17 @@ package com.dicegame.service
 
 import com.dicegame.dto.BetRequest
 import com.dicegame.dto.BetResult
+import com.dicegame.exception.NotEnoughBalanceException
+import com.dicegame.exception.UserIdNotFoundException
 import com.dicegame.model.Bet
 import com.dicegame.model.Player
 import com.dicegame.repository.BetRepository
 import com.dicegame.repository.PlayerRepository
 import com.dicegame.utils.RandomNumberGenerator
-import jakarta.transaction.Transactional
-import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.ResponseEntity
+
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import kotlin.math.abs
 
 @Service
@@ -20,11 +23,12 @@ class GameService(
     private val transactionService: TransactionService
 ) {
     @Transactional
-    fun placeBet(betRequest: BetRequest): BetResult {
+    fun placeBet(betRequest: BetRequest): ResponseEntity<BetResult> {
         val player = playerRepository.findById(betRequest.playerId)
-            .orElseThrow { IllegalArgumentException("Player not found for ID: ${betRequest.playerId}") }
+            .orElseThrow { UserIdNotFoundException("No player found with ID: ${betRequest.playerId}") }
         val oldBalance = player.wallet.balance
-        require(oldBalance >= betRequest.betAmount) { "Insufficient balance." }
+        if (oldBalance < betRequest.betAmount)
+            throw NotEnoughBalanceException("You don't have enough balance to make this bet!")
 
         player.adjustBalance(-betRequest.betAmount)
         val generatedNumber = randomNumberGenerator.nextInt(1, 11)
@@ -33,13 +37,16 @@ class GameService(
 
         val outcome = if (winnings > 0) "WIN" else "LOSS"
         val transactionType = if (outcome == "WIN") "WIN" else "LOSS"
-        transactionService.recordTransaction(betRequest.playerId, if (outcome == "WIN") winnings else -betRequest.betAmount, transactionType)
+        transactionService.recordTransaction(
+            betRequest.playerId,
+            if (outcome == "WIN") winnings else -betRequest.betAmount,
+            transactionType
+        )
 
         playerRepository.save(player)
         val netResult = winnings - betRequest.betAmount
         betRepository.save(Bet(betRequest.playerId, betRequest.betAmount.toLong(), betRequest.chosenNumber, netResult))
-
-        return BetResult(
+        val betResult = BetResult(
             playerId = betRequest.playerId,
             oldBalance = oldBalance,
             newBalance = player.wallet.balance,
@@ -49,6 +56,7 @@ class GameService(
             winAmount = if (outcome == "WIN") winnings else 0,
             betOutcome = outcome
         )
+        return ResponseEntity.ok(betResult)
     }
 
     private fun calculateWinnings(chosenNumber: Int, generatedNumber: Int, betAmount: Int): Int =

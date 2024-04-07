@@ -1,16 +1,16 @@
 package com.dicegame.service
 
 import com.dicegame.dto.PlayerRegisterRequest
+import com.dicegame.exception.UsernameAlreadyExistsException
 import com.dicegame.model.Player
 import com.dicegame.model.Wallet
 import com.dicegame.repository.PlayerRepository
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito
 import org.mockito.Mockito.`when`
-import org.springframework.http.HttpStatus
 
 internal class PlayerServiceTest {
 
@@ -30,8 +30,8 @@ internal class PlayerServiceTest {
 
         val response = playerService.register(player)
 
-        assertEquals(player.username, response.username)
-        assertEquals(1000,response.wallet.balance)
+        assertEquals(player.username, response.body?.username)
+        assertEquals(1000, response.body?.wallet?.balance)
     }
 
     @Test
@@ -42,7 +42,7 @@ internal class PlayerServiceTest {
 
         `when`(playerRepository.findByUsername("john.doe")).thenReturn(existingPlayer)
 
-        assertThrows(IllegalArgumentException::class.java) {
+        assertThrows(UsernameAlreadyExistsException::class.java) {
             playerService.register(playerRequest)
         }
     }

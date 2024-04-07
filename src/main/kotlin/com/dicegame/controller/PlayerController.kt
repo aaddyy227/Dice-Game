@@ -21,7 +21,7 @@ class PlayerController(
 
     @PostMapping("/register")
     fun registerPlayer(@Validated @RequestBody player: PlayerRegisterRequest): ResponseEntity<Player> {
-        return ResponseEntity.ok(playerService.register(player))
+        return playerService.register(player)
 
     }
 

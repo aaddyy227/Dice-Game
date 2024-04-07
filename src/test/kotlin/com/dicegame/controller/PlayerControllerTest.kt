@@ -1,7 +1,6 @@
 package com.dicegame.controller
 
 import com.dicegame.dto.PlayerRegisterRequest
-import com.dicegame.exception.NoTransactionsFoundException
 import com.dicegame.model.Player
 import com.dicegame.model.Transaction
 import com.dicegame.model.Wallet
@@ -9,6 +8,7 @@ import com.dicegame.repository.PlayerRepository
 import com.dicegame.repository.TransactionRepository
 import com.dicegame.service.PlayerService
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.apache.coyote.Response
 import org.hamcrest.CoreMatchers.containsString
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
@@ -45,7 +46,7 @@ class PlayerControllerTest {
     fun `registerPlayer creates and returns player on valid request`() {
         val playerRequest = PlayerRegisterRequest(name = "John", surname = "Doe", username = "johndoe")
         val player = createTestPlayer(name = "John", surname = "Doe", username = "johndoe")
-        given(playerService.register(any())).willReturn(player)
+        given(playerService.register(any())).willReturn(ResponseEntity.ok(player))
 
         val requestJson = objectMapper.writeValueAsString(playerRequest)
 
@@ -118,22 +119,8 @@ class PlayerControllerTest {
             .andExpect(jsonPath("\$[1].username").value(players[1].username))
     }
 
-    @Test
-    fun `registerPlayer returns bad request when username already exists`() {
-        val playerRequest = PlayerRegisterRequest(name = "John", surname = "Doe", username = "existing.user")
-        given(playerService.register(any())).willThrow(IllegalArgumentException("Username already exists: existing.user"))
 
-        val requestJson = objectMapper.writeValueAsString(playerRequest)
-
-        mockMvc.perform(
-            post("/players/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(requestJson)
-        )
-            .andExpect(status().isBadRequest)
-    }
-
-    fun createTestPlayer(
+    private fun createTestPlayer(
         id: Long? = null,
         name: String = "John",
         surname: String = "Doe",

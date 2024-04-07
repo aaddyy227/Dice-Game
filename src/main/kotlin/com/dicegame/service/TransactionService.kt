@@ -8,7 +8,7 @@ import java.time.LocalDateTime
 
 @Service
 class TransactionService(private val transactionRepository: TransactionRepository) {
-    @Transactional()
+    @Transactional
     fun recordTransaction(playerId: Long, amount: Int, type: String) {
         val transaction = Transaction(
             playerId = playerId,
