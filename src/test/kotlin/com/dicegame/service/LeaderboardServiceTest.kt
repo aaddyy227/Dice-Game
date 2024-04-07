@@ -25,6 +25,7 @@ internal class LeaderboardServiceTest {
 
     @Mock
     private lateinit var playerRepository: PlayerRepository
+
     @Mock
     private lateinit var leaderboardService: LeaderboardService
 
@@ -35,35 +36,74 @@ internal class LeaderboardServiceTest {
     }
 
     @Test
-    fun `getLeaderboard should retrieve top five leaderboard entries`() {
+    fun `getLeaderboard should retrieve top two because of only two winning players`() {
         // Prepare mock data
         val playerWinningsList = listOf(
-            PlayerWinnings(1L, 500),
-            PlayerWinnings(2L, 400)
+            PlayerWinnings(1L, 500L),
+            PlayerWinnings(2L, 7800L)
         )
-
+        val players = listOf(
+            Player(1L, "player1", "player1surename", "player1", Wallet(500)),
+            Player(2L, "player2", "player2surename", "player2", Wallet(7800))
+        )
         val expectedLeaderboard = listOf(
             LeaderboardView("player1", 500),
-            LeaderboardView("player2", 400)
+            LeaderboardView("player2", 7800)
         )
 
         // Mock repository responses
         val topFivePageRequest = PageRequest.of(0, 5)
-        whenever(transactionRepository.findPlayersTotalWinnings(topFivePageRequest))
-            .thenReturn(playerWinningsList)
-        whenever(playerRepository.findById(1L)).thenReturn(java.util.Optional.of(Player(1L, "player1", "Doe", "player1", Wallet(2000))))
-        whenever(playerRepository.findById(2L)).thenReturn(java.util.Optional.of(Player(2L, "player2", "Smith", "player2", Wallet(3000))))
+        `when`(transactionRepository.findPlayersTotalWinnings(topFivePageRequest)).thenReturn(playerWinningsList)
+        `when`(playerRepository.findAllById(listOf(1L, 2L))).thenReturn(players)
 
         // Execute the test
         val actualLeaderboard = leaderboardService.getLeaderboard()
 
         // Assertions
-        assertEquals(expectedLeaderboard.size, actualLeaderboard.size, "The size of the retrieved leaderboard should match the expected")
-        expectedLeaderboard.forEachIndexed { index, expectedEntry ->
-            val actualEntry = actualLeaderboard[index]
-            assertEquals(expectedEntry.playerName, actualEntry.playerName, "Player name should match for entry at index $index")
-            assertEquals(expectedEntry.totalWinnings, actualEntry.totalWinnings, "Total winnings should match for entry at index $index")
-        }
+        assertEquals(
+            expectedLeaderboard,
+            actualLeaderboard,
+            "The leaderboard entries should match the expected results"
+        )
+    }
+    @Test
+    fun `getLeaderboard should retrieve top five leaderboard entries`() {
+        val playerWinningsList = listOf(
+            PlayerWinnings(1L, 500L),
+            PlayerWinnings(2L, 7800L),
+            PlayerWinnings(3L, 1500L),
+            PlayerWinnings(4L, 3200L),
+            PlayerWinnings(5L, 2400L)
+        )
+        val players = listOf(
+            Player(1L, "player1name", "player1surname", "player1", Wallet(500)),
+            Player(2L, "player2name", "player2surname", "player2", Wallet(7800)),
+            Player(3L, "player3name", "player3surname", "player3", Wallet(1500)),
+            Player(4L, "player4name", "player4surname", "player4", Wallet(3200)),
+            Player(5L, "player5name", "player5surname", "player5", Wallet(2400))
+        )
+        val expectedLeaderboard = listOf(
+            LeaderboardView("player1", 500),
+            LeaderboardView("player2", 7800),
+            LeaderboardView("player3", 1500),
+            LeaderboardView("player4", 3200),
+            LeaderboardView("player5", 2400)
+        )
+
+        // Mock repository responses
+        val topFivePageRequest = PageRequest.of(0, 5)
+        `when`(transactionRepository.findPlayersTotalWinnings(topFivePageRequest)).thenReturn(playerWinningsList)
+        `when`(playerRepository.findAllById(listOf(1L, 2L, 3L, 4L, 5L))).thenReturn(players)
+
+        // Execute the test
+        val actualLeaderboard = leaderboardService.getLeaderboard()
+
+        // Assertions
+        assertEquals(
+            expectedLeaderboard,
+            actualLeaderboard,
+            "The leaderboard entries should match the expected results"
+        )
     }
     @Test
     fun `getLeaderboard throws NoBetsPlacedException when there are no winnings`() {

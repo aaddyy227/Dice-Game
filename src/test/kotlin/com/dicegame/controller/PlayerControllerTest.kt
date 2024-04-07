@@ -1,6 +1,7 @@
 package com.dicegame.controller
 
 import com.dicegame.dto.PlayerRegisterRequest
+import com.dicegame.exception.NoTransactionsFoundException
 import com.dicegame.model.Player
 import com.dicegame.model.Transaction
 import com.dicegame.model.Wallet
@@ -8,6 +9,7 @@ import com.dicegame.repository.PlayerRepository
 import com.dicegame.repository.TransactionRepository
 import com.dicegame.service.PlayerService
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.hamcrest.CoreMatchers.containsString
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.given
@@ -56,6 +58,14 @@ class PlayerControllerTest {
             .andExpect(content().json(objectMapper.writeValueAsString(player)))
     }
 
+    @Test
+    fun `getPlayerTransactions throws PlayerNotFoundException for non-existing player`() {
+        val nonExistingPlayerId = 999L
+
+        mockMvc.perform(get("/players/{playerId}/transactions", nonExistingPlayerId))
+            .andExpect(status().isNotFound)
+            .andExpect(content().string(containsString("No transactions found for player with ID $nonExistingPlayerId")))
+    }
 
     @Test
     fun `getPlayerTransactions returns player transactions`() {

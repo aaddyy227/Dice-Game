@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 @ControllerAdvice
 class ExceptionHandler {
 
-    @ExceptionHandler(value = [IllegalArgumentException::class])
+    @ExceptionHandler(IllegalArgumentException::class)
     fun handleIllegalArgumentException(ex: IllegalArgumentException): ResponseEntity<String> {
         return ResponseEntity(ex.message, HttpStatus.BAD_REQUEST)
     }
@@ -17,7 +17,12 @@ class ExceptionHandler {
     fun handleNoBetsPlacedException(ex: NoBetsPlacedException): ResponseEntity<String> {
         return ResponseEntity(ex.message, HttpStatus.BAD_REQUEST)
     }
+    @ExceptionHandler(NoTransactionsFoundException::class)
+    fun handleNoTransactionsFoundException(ex: NoTransactionsFoundException): ResponseEntity<String> {
+        return ResponseEntity(ex.message, HttpStatus.NOT_FOUND)
+    }
 }
 
-
 class NoBetsPlacedException(message: String) : IllegalArgumentException(message)
+
+class NoTransactionsFoundException(message: String): RuntimeException(message)
