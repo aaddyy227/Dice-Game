@@ -49,6 +49,7 @@ Register a new player:
 ```bash 
 POST /players/register
 ```
+body:
 ```json
 {
   "name": "John",
@@ -64,7 +65,7 @@ Place a bet with a `playerId`, `betAmount`, and `chosenNumber`:
 ```bash
 POST "/game/placebet"
 ```
-
+body:
 ```json
 {
   "playerId": 1,
